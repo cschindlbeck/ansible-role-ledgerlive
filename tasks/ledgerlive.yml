@@ -1,0 +1,91 @@
+---
+- name: Install ledger-live
+  become: true
+  block:
+    - name: Download LedgerHQ udev rules script
+      ansible.builtin.get_url:
+        url: https://raw.githubusercontent.com/LedgerHQ/udev-rules/master/add_udev_rules.sh
+        dest: /tmp/add_udev_rules.sh
+        mode: '0755'
+
+    - name: Execute LedgerHQ udev rules script
+      ansible.builtin.command:
+        cmd: /tmp/add_udev_rules.sh
+      changed_when: false
+
+    - name: Get headers of the URL
+      ansible.builtin.uri:
+        url: "https://download.live.ledger.com/latest/linux"
+        method: GET
+        validate_certs: true
+        return_content: false
+      register: url_headers
+
+    - name: Define search pattern
+      ansible.builtin.set_fact:
+        search_pattern: "https://download.live.ledger.com/ledger-live-desktop-(.*?)-linux-x86_64.AppImage"
+
+    - name: Define replacement pattern
+      ansible.builtin.set_fact:
+        replace_pattern: "https://download.live.ledger.com/ledger-live-desktop-(.*?)-linux-x86_64.AppImage"
+
+    - name: Extract version number from URL
+      ansible.builtin.set_fact:
+        ledger_live_version: "{{ url_headers.url | regex_search(search_pattern) |
+                                 regex_replace(replace_pattern, '\\1') | safe }}"
+
+    - name: Check if ledger live version exists
+      ansible.builtin.stat:
+        path: /opt/ledger-live-desktop-{{ ledger_live_version }}-linux-x86_64.AppImage
+      register: ledger_live_register_ledger_live_desktop
+
+    - name: Detect if running in a Docker container
+      ansible.builtin.stat:
+        path: /.dockerenv
+      register: docker_env
+      ignore_errors: true
+
+    - name: Download ledger-live-desktop
+      ansible.builtin.get_url:
+        url: https://download.live.ledger.com/ledger-live-desktop-{{ ledger_live_version }}-linux-x86_64.AppImage
+        dest: /opt/ledger-live-desktop-{{ ledger_live_version }}-linux-x86_64.AppImage
+        mode: '0775'
+        owner: "{{ 'root' if docker_env.stat.exists else lookup('env', 'USER') }}"
+        group: "{{ 'root' if docker_env.stat.exists else lookup('env', 'USER') }}"
+      when: not ledger_live_register_ledger_live_desktop.stat.exists
+
+    - name: Copy ledgerlive icon
+      ansible.builtin.copy:
+        src: "files/ledgerliveicon.png"
+        dest: "/opt/ledgerliveicon.png"
+        mode: '0755'
+
+    - name: Create desktop icon
+      ansible.builtin.template:
+        src: ledgerlive.desktop.j2
+        dest: /usr/share/applications/ledgerlive.desktop
+        owner: root
+        group: root
+        mode: '0644'
+
+    - name: Register all ledger live appimage versions
+      ansible.builtin.find:
+        paths: "/opt/"
+        patterns: "ledger-live-desktop-*-linux-x86_64.AppImage"
+      register: appimage_files
+
+    - name: Set desired file path
+      ansible.builtin.set_fact:
+        desired_file_path: "/opt/ledger-live-desktop-{{ ledger_live_version }}-linux-x86_64.AppImage"
+
+    - name: Delete older ledger live versions
+      ansible.builtin.file:
+        path: "{{ item.path }}"
+        state: absent
+      loop: "{{ appimage_files.files }}"
+      when: item.path != desired_file_path
+
+    - name: Assert desired file exists
+      ansible.builtin.assert:
+        that:
+          - appimage_files.files | selectattr('path', 'match', desired_file_path) | list | length == 1

@@ -1,0 +1,14 @@
+# file: main.yml
+# Tasks to be imported
+---
+- name: Update packages
+  ansible.builtin.import_tasks: update.yml
+
+- name: Install libfuse2
+  ansible.builtin.import_tasks: libfuse2.yml
+
+- name: Install udev
+  ansible.builtin.import_tasks: udev.yml
+
+- name: Install ledgerlive
+  ansible.builtin.import_tasks: ledgerlive.yml

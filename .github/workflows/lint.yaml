@@ -1,0 +1,36 @@
+---
+name: lint
+'on':
+  pull_request:
+  push:
+    branches:
+      - main
+      - dev
+
+defaults:
+  run:
+    working-directory: 'cschindlbeck.ledgerlive'
+
+# TODO add ansiblelint
+jobs:
+
+  yamllint:
+    name: Lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the codebase.
+        uses: actions/checkout@v4
+        with:
+          path: 'cschindlbeck.ledgerlive'
+
+      - name: Set up Python 3.
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      - name: Install test dependencies.
+        run: pip3 install yamllint
+
+      - name: Lint code.
+        run: |
+          yamllint .

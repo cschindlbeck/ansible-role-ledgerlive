@@ -1,0 +1,17 @@
+---
+- name: Install libfuse2
+  become: true
+  block:
+    - name: Install libfuse2 on Ubuntu 22.04
+      ansible.builtin.apt:
+        state: present
+        pkg:
+          - libfuse2
+        update_cache: true
+        cache_valid_time: 3600
+      register: ledger_live_apt_res
+      retries: 5
+      until: ledger_live_apt_res is success
+      when:
+        - ansible_distribution_version == "22.04"
+        - "ansible_facts.packages['libfuse2'] is not defined"

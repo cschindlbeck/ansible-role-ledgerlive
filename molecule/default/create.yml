@@ -1,0 +1,20 @@
+---
+- name: Create
+  hosts: localhost
+  connection: local
+  gather_facts: false
+  no_log: "{{ molecule_no_log }}"
+  tasks:
+    - name: Create Docker Container
+      community.docker.docker_container:
+        name: "{{ item.name }}"
+        image: "{{ item.image }}"
+        image_name_mismatch: ignore
+        command: ""
+        volumes:
+          - /sys/fs/cgroup:/sys/fs/cgroup:rw
+          - /home/chris/repos/ansible-role-ledgerlive:/home/chris/repos/ansible-role-ledgerlive:rw
+        cgroupns_mode: host
+        privileged: true
+      loop: "{{ molecule_yml.platforms }}"
+      when: server is not defined

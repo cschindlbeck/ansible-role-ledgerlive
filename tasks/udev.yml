@@ -1,0 +1,6 @@
+---
+- name: Install required package for udevadm
+  become: true
+  ansible.builtin.package:
+    name: udev
+    state: present

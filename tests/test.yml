@@ -1,0 +1,7 @@
+---
+- name: Execute ledgerlive role on localhost
+  hosts: localhost
+  remote_user: root
+  roles:
+    - name: Run ledger_live role
+      role: cschindlbeck.ledgerlive

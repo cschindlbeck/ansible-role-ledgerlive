@@ -1,0 +1,14 @@
+ansible-compat; python_version>="3.11"
+ansible-compat==3.0.2; python_version<="3.8" # https://github.com/ansible-community/molecule-plugins/issues/176
+
+molecule; python_version>="3.10"
+molecule==6.0.3; python_version=="3.9"
+molecule==5.0.1; python_version<="3.8"
+
+molecule-plugins==23.5.0
+
+docker
+requests
+
+# molecule-plugins[vagrant] == 23.*  # lets not use vagrant for now
+# pywinrm  == 0.*  # for windows

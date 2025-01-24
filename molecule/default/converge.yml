@@ -1,0 +1,13 @@
+---
+- name: Converge
+  hosts: instance
+  become: true
+  gather_facts: true
+  pre_tasks:
+    - name: Get package facts
+      ansible.builtin.package_facts:
+        manager: "auto"
+  tasks:
+    - name: "Include ledgerlive"
+      ansible.builtin.include_role:
+        name: "cschindlbeck.ledgerlive"

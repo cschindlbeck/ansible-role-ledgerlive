@@ -1,0 +1,28 @@
+---
+- name: Update all Archlinux packages
+  become: true
+  when: ansible_distribution == 'Archlinux'
+  block:
+    - name: Update signing key, clear package cache and update package database on Archlinux
+      ansible.builtin.shell: |
+        pacman -S archlinux-keyring --noconfirm
+        pacman -Scc --noconfirm
+        pacman -Syy --noconfirm
+      changed_when: false
+
+      # - name: Update all Fedora packages  # TODO this should only update cache not upgrade all
+      #   become: true
+      #   when: ansible_distribution == 'Fedora'
+      #   block:
+      #     - name: Upgrade all dnf packages
+      #       ansible.builtin.dnf:
+      #         name: "*"
+      #         state: latest
+
+- name: Update Ubuntu cache
+  become: true
+  when: ansible_distribution == 'Ubuntu'
+  block:
+    - name: Update all packages on debian-based systems
+      ansible.builtin.apt:
+        update_cache: true
