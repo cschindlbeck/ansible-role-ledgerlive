@@ -10,14 +10,13 @@
         pacman -Syy --noconfirm
       changed_when: false
 
-      # - name: Update all Fedora packages  # TODO this should only update cache not upgrade all
-      #   become: true
-      #   when: ansible_distribution == 'Fedora'
-      #   block:
-      #     - name: Upgrade all dnf packages
-      #       ansible.builtin.dnf:
-      #         name: "*"
-      #         state: latest
+- name: Update Fedora cache
+  become: true
+  when: ansible_distribution == 'Fedora'
+  block:
+    - name: Update package metadata cache on Fedora
+      ansible.builtin.dnf:
+        update_cache: true
 
 - name: Update Ubuntu cache
   become: true

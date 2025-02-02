@@ -2,7 +2,7 @@
 galaxy_info:
   role_name: ledgerlive
   author: cschindlbeck
-  description: Install ledger live
+  description: Installs Ledger Live Desktop Wallet App
   namespace: cschindlbeck
 
   # If the issue tracker for your role is not on github, uncomment the
@@ -36,6 +36,8 @@ galaxy_info:
         - '37'
         - '38'
         - '39'
+        - '40'
+        - '41'
     - name: Ubuntu
       versions:
         - focal
