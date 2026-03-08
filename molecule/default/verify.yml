@@ -1,10 +1,53 @@
 ---
-# This is an example playbook to execute Ansible tests.
-
 - name: Verify
   hosts: all
   gather_facts: true
   tasks:
-    - name: Example assertion
+    - name: Find Ledger Live AppImage files
+      ansible.builtin.find:
+        paths: "/opt/"
+        patterns: "ledger-live-desktop-*-linux-x86_64.AppImage"
+      register: appimage_files
+
+    - name: Assert at least one AppImage exists
       ansible.builtin.assert:
-        that: true
+        that:
+          - appimage_files.matched > 0
+        fail_msg: "No Ledger Live AppImage found in /opt/"
+
+    - name: Assert AppImage is executable with correct permissions
+      ansible.builtin.assert:
+        that:
+          - item.mode == '0775'
+        fail_msg: "AppImage {{ item.path }} has incorrect permissions: {{ item.mode }}"
+      loop: "{{ appimage_files.files }}"
+
+    - name: Check if icon exists
+      ansible.builtin.stat:
+        path: "/opt/ledgerliveicon.png"
+      register: icon_file
+
+    - name: Assert icon exists
+      ansible.builtin.assert:
+        that:
+          - icon_file.stat.exists
+
+    - name: Check if desktop file exists
+      ansible.builtin.stat:
+        path: "/usr/share/applications/ledgerlive.desktop"
+      register: desktop_file
+
+    - name: Assert desktop file exists
+      ansible.builtin.assert:
+        that:
+          - desktop_file.stat.exists
+
+    - name: Check if udev rules script exists
+      ansible.builtin.stat:
+        path: "/tmp/add_udev_rules.sh"
+      register: udev_script
+
+    - name: Assert udev rules script exists
+      ansible.builtin.assert:
+        that:
+          - udev_script.stat.exists

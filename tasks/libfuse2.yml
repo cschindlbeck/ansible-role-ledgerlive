@@ -13,5 +13,5 @@
       retries: 5
       until: ledger_live_apt_res is success
       when:
-        - ansible_distribution_version == "22.04"
+        - ansible_facts['distribution_version'] == "22.04"
         - "ansible_facts.packages['libfuse2'] is not defined"

@@ -2,9 +2,3 @@
 collections:
   - name: community.general
     version: 6.6.0
-
-# roles:
-#   - name: diodonfrost.terraform
-#     src: diodonfrost.terraform
-#   - name: docker
-#     src: geerlingguy.docker

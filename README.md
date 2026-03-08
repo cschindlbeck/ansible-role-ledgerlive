@@ -40,6 +40,9 @@ Molecule is used for testing
 Install requirements
 
 ```bash
+python3 -m venv venv
+source venv/bin/activate
+pip install --upgrade pip
 pip install -r requirements-dev.txt
 ansible-galaxy install -r requirements-dev.yml
 ```
