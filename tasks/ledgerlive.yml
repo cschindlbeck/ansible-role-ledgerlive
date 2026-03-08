@@ -31,8 +31,8 @@
 
     - name: Extract version number from URL
       ansible.builtin.set_fact:
-        ledger_live_version: "{{ (url_headers.url | regex_search(search_pattern) |
-                                   regex_replace(replace_pattern, '\\1')) | string }}"
+        ledger_live_version: >-
+          {{ url_headers.url | regex_search(search_pattern) | regex_replace(replace_pattern, '\\1') | string }}
 
     - name: Check if ledger live version exists
       ansible.builtin.stat:

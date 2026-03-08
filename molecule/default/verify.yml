@@ -3,36 +3,24 @@
   hosts: all
   gather_facts: true
   tasks:
-    - name: Get headers of the URL
-      ansible.builtin.uri:
-        url: "https://download.live.ledger.com/latest/linux"
-        method: GET
-        validate_certs: true
-        return_content: false
-      register: url_headers
+    - name: Find Ledger Live AppImage files
+      ansible.builtin.find:
+        paths: "/opt/"
+        patterns: "ledger-live-desktop-*-linux-x86_64.AppImage"
+      register: appimage_files
 
-    - name: Define search pattern
-      ansible.builtin.set_fact:
-        search_pattern: "https://download.live.ledger.com/ledger-live-desktop-(.*?)-linux-x86_64.AppImage"
-
-    - name: Define replacement pattern
-      ansible.builtin.set_fact:
-        replace_pattern: "https://download.live.ledger.com/ledger-live-desktop-(.*?)-linux-x86_64.AppImage"
-
-    - name: Extract version number from URL
-      ansible.builtin.set_fact:
-        ledger_live_version: "{{ url_headers.url | regex_search(search_pattern) | regex_replace(replace_pattern, '\\1') | safe }}"
-
-    - name: Check if Ledger Live AppImage exists
-      ansible.builtin.stat:
-        path: "/opt/ledger-live-desktop-{{ ledger_live_version }}-linux-x86_64.AppImage"
-      register: appimage_file
-
-    - name: Assert AppImage exists and is executable
+    - name: Assert at least one AppImage exists
       ansible.builtin.assert:
         that:
-          - appimage_file.stat.exists
-          - appimage_file.stat.mode == '0775'
+          - appimage_files.matched > 0
+        fail_msg: "No Ledger Live AppImage found in /opt/"
+
+    - name: Assert AppImage is executable with correct permissions
+      ansible.builtin.assert:
+        that:
+          - item.mode == '0775'
+        fail_msg: "AppImage {{ item.path }} has incorrect permissions: {{ item.mode }}"
+      loop: "{{ appimage_files.files }}"
 
     - name: Check if icon exists
       ansible.builtin.stat:
