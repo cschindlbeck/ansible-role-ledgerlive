@@ -13,26 +13,34 @@
         cmd: /tmp/add_udev_rules.sh
       changed_when: false
 
-    - name: Get headers of the URL
+    - name: Get latest Ledger Live Desktop version from GitHub API
       ansible.builtin.uri:
-        url: "https://download.live.ledger.com/latest/linux"
+        url: "https://api.github.com/repos/LedgerHQ/ledger-live/releases"
         method: GET
         validate_certs: true
-        return_content: false
-      register: url_headers
+        return_content: true
+      register: github_releases
 
-    - name: Define search pattern
-      ansible.builtin.set_fact:
-        search_pattern: "https://download.live.ledger.com/ledger-live-desktop-(.*?)-linux-x86_64.AppImage"
-
-    - name: Define replacement pattern
-      ansible.builtin.set_fact:
-        replace_pattern: "https://download.live.ledger.com/ledger-live-desktop-(.*?)-linux-x86_64.AppImage"
-
-    - name: Extract version number from URL
+    - name: Extract desktop version from releases
       ansible.builtin.set_fact:
         ledger_live_version: >-
-          {{ url_headers.url | regex_search(search_pattern) | regex_replace(replace_pattern, '\\1') | string }}
+          {{
+            github_releases.json
+            | selectattr('tag_name', 'search', '@ledgerhq/live-desktop@')
+            | map(attribute='tag_name')
+            | first
+            | regex_replace('@ledgerhq/live-desktop@', '')
+          }}
+
+    - name: Validate version was detected
+      ansible.builtin.assert:
+        that:
+          - ledger_live_version is defined
+          - ledger_live_version | length > 0
+          - ledger_live_version != 'None'
+          - ledger_live_version | regex_search('^\d+\.\d+\.\d+$') is not none
+        fail_msg: "Failed to detect valid Ledger Live version. Got: {{ ledger_live_version | default('undefined') }}"
+        success_msg: "Detected Ledger Live version: {{ ledger_live_version }}"
 
     - name: Check if ledger live version exists
       ansible.builtin.stat:
