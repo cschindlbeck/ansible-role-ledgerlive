@@ -13,34 +13,47 @@
         cmd: /tmp/add_udev_rules.sh
       changed_when: false
 
-    - name: Get latest Ledger Live Desktop version from GitHub API
+    - name: Get latest Ledger Live Linux manifest
       ansible.builtin.uri:
-        url: "https://api.github.com/repos/LedgerHQ/ledger-live/releases"
+        url: "https://download.live.ledger.com/latest-linux.yml"
         method: GET
         validate_certs: true
         return_content: true
-      register: github_releases
+      register: ledger_live_manifest
 
-    - name: Extract desktop version from releases
+    - name: Extract desktop version from manifest
       ansible.builtin.set_fact:
         ledger_live_version: >-
           {{
-            github_releases.json
-            | selectattr('tag_name', 'search', '@ledgerhq/live-desktop@')
-            | map(attribute='tag_name')
+            ledger_live_manifest.content
+            | regex_findall('(?m)^version:\s*([0-9]+\.[0-9]+\.[0-9]+)$')
             | first
-            | regex_replace('@ledgerhq/live-desktop@', '')
+            | default('')
+          }}
+        ledger_live_filename: >-
+          {{
+            ledger_live_manifest.content
+            | regex_findall('(?m)^path:\s*(ledger-live-desktop-[^\s]+-linux-x86_64\.AppImage)$')
+            | first
+            | default('')
           }}
 
-    - name: Validate version was detected
+    - name: Validate manifest data was detected
       ansible.builtin.assert:
         that:
           - ledger_live_version is defined
           - ledger_live_version | length > 0
-          - ledger_live_version != 'None'
           - ledger_live_version | regex_search('^\d+\.\d+\.\d+$') is not none
-        fail_msg: "Failed to detect valid Ledger Live version. Got: {{ ledger_live_version | default('undefined') }}"
-        success_msg: "Detected Ledger Live version: {{ ledger_live_version }}"
+          - ledger_live_filename is defined
+          - ledger_live_filename | length > 0
+          - ledger_live_filename is match('^ledger-live-desktop-.*-linux-x86_64\\.AppImage$')
+        fail_msg: >-
+          Failed to detect valid Ledger Live manifest data.
+          Got version={{ ledger_live_version | default('undefined') }},
+          filename={{ ledger_live_filename | default('undefined') }}
+        success_msg: >-
+          Detected Ledger Live version {{ ledger_live_version }}
+          via {{ ledger_live_filename }}
 
     - name: Check if ledger live version exists
       ansible.builtin.stat:
@@ -55,7 +68,7 @@
 
     - name: Download ledger-live-desktop
       ansible.builtin.get_url:
-        url: https://download.live.ledger.com/ledger-live-desktop-{{ ledger_live_version }}-linux-x86_64.AppImage
+        url: https://download.live.ledger.com/{{ ledger_live_filename }}
         dest: /opt/ledger-live-desktop-{{ ledger_live_version }}-linux-x86_64.AppImage
         mode: '0775'
         owner: "{{ 'root' if docker_env.stat.exists else lookup('env', 'USER') }}"
