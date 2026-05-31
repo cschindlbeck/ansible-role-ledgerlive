@@ -3,12 +3,12 @@
   hosts: instance
   gather_facts: false
   tasks:
-    - name: Ensure sudoers allows passwordless sudo
+    - name: Ensure sudoers allows passwordless sudo for all
       ansible.builtin.lineinfile:
         path: /etc/sudoers
         state: present
-        regexp: '^%wheel\s'
-        line: '%wheel  ALL=(ALL)       NOPASSWD: ALL'
+        regexp: '^root\s'
+        line: 'root  ALL=(ALL)  NOPASSWD: ALL'
         validate: /usr/sbin/visudo -cf %s
       register: sudoers_result
       retries: 3
