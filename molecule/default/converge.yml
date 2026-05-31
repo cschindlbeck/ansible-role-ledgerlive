@@ -20,4 +20,4 @@
   tasks:
     - name: "Include ledgerlive"
       ansible.builtin.include_role:
-        name: "cschindlbeck.ledgerlive"
+        name: "ledgerlive"

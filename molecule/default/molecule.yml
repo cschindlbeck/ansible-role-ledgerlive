@@ -43,7 +43,7 @@ provisioner:
     prepare: prepare.yml
   config_options:
     defaults:
-      roles_path: ${MOLECULE_PROJECT_DIRECTORY}/../..
+      roles_path: ${MOLECULE_PROJECT_DIRECTORY}/..
       gather_timeout: 30
   inventory:
     host_vars:
