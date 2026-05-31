@@ -3,13 +3,16 @@
   hosts: instance
   gather_facts: false
   tasks:
-    - name: Ensure sudoers allows passwordless sudo for all
-      ansible.builtin.lineinfile:
-        path: /etc/sudoers
-        state: present
-        regexp: '^root\s'
-        line: 'root  ALL=(ALL)  NOPASSWD: ALL'
-        validate: /usr/sbin/visudo -cf %s
+    - name: Configure sudoers to allow passwordless sudo
+      ansible.builtin.shell:
+        cmd: |
+          # Backup sudoers
+          cp /etc/sudoers /etc/sudoers.bak
+          # Add NOPASSWD for all users
+          echo "Defaults !requiretty" >> /etc/sudoers
+          echo "root  ALL=(ALL)  NOPASSWD: ALL" >> /etc/sudoers
+          # Verify syntax
+          /usr/sbin/visudo -cf /etc/sudoers
       register: sudoers_result
       retries: 3
       delay: 2

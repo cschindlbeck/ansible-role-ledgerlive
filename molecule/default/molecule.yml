@@ -48,7 +48,6 @@ provisioner:
   inventory:
     host_vars:
       instance:
-        ansible_become_method: sudo
-        ansible_become_password: ""
+        ansible_become: false
 verifier:
   name: ansible
