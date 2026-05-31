@@ -2,7 +2,7 @@ ansible-compat
 
 molecule
 
-molecule-plugins==23.5.0
+molecule-plugins
 
 docker
 requests

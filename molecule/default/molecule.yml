@@ -4,7 +4,8 @@ dependency:
   name: galaxy
 driver:
   name: docker
-lint: set -e
+lint: |
+  set -e
   yamllint .
   ansible-lint
 platforms:
@@ -29,10 +30,10 @@ platforms:
     command: "sleep infinity"
     privileged: true
     pre_build_image: true
-    # - name: instance
-    #   image: "geerlingguy/docker-fedora41-ansible:latest"
-    # - name: instance
-    #   image: "chriswayg/docker-archlinux-ansible:latest"
+  # - name: instance
+  #   image: "geerlingguy/docker-fedora41-ansible:latest"
+  # - name: instance
+  #   image: "chriswayg/docker-archlinux-ansible:latest"
 provisioner:
   name: ansible
   playbooks:
