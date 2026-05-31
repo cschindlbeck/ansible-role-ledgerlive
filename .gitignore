@@ -17,6 +17,7 @@
 # Tower runtime roles
 roles/**
 !roles/requirements.yml
+!roles/cschindlbeck.ledgerlive
 
 # Avoid plain-text passwords
 *pwd*
