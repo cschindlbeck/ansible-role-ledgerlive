@@ -13,9 +13,10 @@
       retries: 3
       delay: 5
       until: facts_result is succeeded
-    - name: Get package facts
+    - name: Get package facts (no become, already root)
       ansible.builtin.package_facts:
         manager: "auto"
+      become: false
   tasks:
     - name: "Include ledgerlive"
       ansible.builtin.include_role:
