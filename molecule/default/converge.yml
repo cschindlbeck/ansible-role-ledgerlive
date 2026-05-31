@@ -2,12 +2,22 @@
 - name: Converge
   hosts: instance
   become: true
-  gather_facts: true
+  gather_facts: false
   pre_tasks:
-    - name: Get package facts
+    - name: Gather facts (no become, already root)
+      ansible.builtin.setup:
+        gather_subset: all
+        gather_timeout: 30
+      become: false
+      register: facts_result
+      retries: 3
+      delay: 5
+      until: facts_result is succeeded
+    - name: Get package facts (no become, already root)
       ansible.builtin.package_facts:
         manager: "auto"
+      become: false
   tasks:
-    - name: "Include ledgerlive"
+    - name: "Include cschindlbeck.ledgerlive"
       ansible.builtin.include_role:
         name: "cschindlbeck.ledgerlive"

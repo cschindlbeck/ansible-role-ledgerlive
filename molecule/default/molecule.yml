@@ -4,7 +4,8 @@ dependency:
   name: galaxy
 driver:
   name: docker
-lint: set -e
+lint: |
+  set -e
   yamllint .
   ansible-lint
 platforms:
@@ -24,26 +25,29 @@ platforms:
   #   image: "geerlingguy/docker-fedora40-ansible:latest"
   # - name: instance
   #   image: "geerlingguy/docker-fedora39-ansible:latest"
+  # - name: instance
+  #   image: "geerlingguy/docker-fedora41-ansible:latest"
+  # - name: instance
+  #   image: "chriswayg/docker-archlinux-ansible:latest"
   - name: instance
     image: "geerlingguy/docker-fedora40-ansible:latest"
-    command: "sleep infinity"
+    command: ""
+    volumes:
+      - /sys/fs/cgroup:/sys/fs/cgroup:rw
     privileged: true
     pre_build_image: true
-    # - name: instance
-    #   image: "geerlingguy/docker-fedora41-ansible:latest"
-    # - name: instance
-    #   image: "chriswayg/docker-archlinux-ansible:latest"
 provisioner:
   name: ansible
   playbooks:
     converge: converge.yml
+    prepare: prepare.yml
   config_options:
     defaults:
-      roles_path: ${MOLECULE_PROJECT_DIRECTORY}/..
+      roles_path: ${MOLECULE_PROJECT_DIRECTORY}/roles
+      gather_timeout: 30
   inventory:
     host_vars:
       instance:
-      # If you need to specify a password, you can do it here or use Ansible Vault
-      # ansible_become_pass: root
+        ansible_become: false
 verifier:
   name: ansible

@@ -1,0 +1,28 @@
+---
+- name: Prepare
+  hosts: instance
+  gather_facts: false
+  tasks:
+    - name: Configure sudoers to allow passwordless sudo
+      ansible.builtin.shell:
+        cmd: |
+          # Backup sudoers
+          cp /etc/sudoers /etc/sudoers.bak
+          # Add NOPASSWD for all users
+          echo "Defaults !requiretty" >> /etc/sudoers
+          echo "root  ALL=(ALL)  NOPASSWD: ALL" >> /etc/sudoers
+          # Verify syntax
+          /usr/sbin/visudo -cf /etc/sudoers
+      register: sudoers_result
+      retries: 3
+      delay: 2
+      until: sudoers_result is succeeded
+
+    - name: Gather facts with retries
+      ansible.builtin.setup:
+        gather_subset: all
+        gather_timeout: 30
+      register: facts_result
+      retries: 3
+      delay: 5
+      until: facts_result is succeeded

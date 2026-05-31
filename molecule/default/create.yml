@@ -10,7 +10,7 @@
         name: "{{ item.name }}"
         image: "{{ item.image }}"
         image_name_mismatch: ignore
-        command: ""
+        command: "{{ item.command | default('sleep infinity') }}"
         volumes:
           - /sys/fs/cgroup:/sys/fs/cgroup:rw
         cgroupns_mode: host
