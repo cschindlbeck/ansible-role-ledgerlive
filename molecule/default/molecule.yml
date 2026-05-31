@@ -9,26 +9,29 @@ lint:
   yamllint .
   ansible-lint
 platforms:
-  # - name: instance
-  #   image: "geerlingguy/docker-ubuntu2004-ansible:latest"
-  # - name: instance
-  #   image: "geerlingguy/docker-ubuntu2204-ansible:latest"
-  # - name: instance
-  #   image: "geerlingguy/docker-ubuntu2404-ansible:latest"
-  # - name: instance
-  #   image: "geerlingguy/docker-fedora37-ansible:latest"
-  # - name: instance
-  #   image: "geerlingguy/docker-fedora38-ansible:latest"
-  # - name: instance
-  #   image: "geerlingguy/docker-fedora39-ansible:latest"
-  # - name: instance
-  #   image: "geerlingguy/docker-fedora40-ansible:latest"
-  # - name: instance
-  #   image: "geerlingguy/docker-fedora39-ansible:latest"
-  - name: instance
-    image: "geerlingguy/docker-fedora40-ansible:latest"
-    # - name: instance
-    #   image: "geerlingguy/docker-fedora41-ansible:latest"
+   # - name: instance
+   #   image: "geerlingguy/docker-ubuntu2004-ansible:latest"
+   # - name: instance
+   #   image: "geerlingguy/docker-ubuntu2204-ansible:latest"
+   # - name: instance
+   #   image: "geerlingguy/docker-ubuntu2404-ansible:latest"
+   # - name: instance
+   #   image: "geerlingguy/docker-fedora37-ansible:latest"
+   # - name: instance
+   #   image: "geerlingguy/docker-fedora38-ansible:latest"
+   # - name: instance
+   #   image: "geerlingguy/docker-fedora39-ansible:latest"
+   # - name: instance
+   #   image: "geerlingguy/docker-fedora40-ansible:latest"
+   # - name: instance
+   #   image: "geerlingguy/docker-fedora39-ansible:latest"
+   - name: instance
+     image: "geerlingguy/docker-fedora40-ansible:latest"
+     command: "sleep infinity"
+     privileged: true
+     pre_build_image: true
+     # - name: instance
+     #   image: "geerlingguy/docker-fedora41-ansible:latest"
 # - name: instance
 #   image: "chriswayg/docker-archlinux-ansible:latest"
 provisioner:
@@ -39,12 +42,9 @@ provisioner:
     defaults:
       roles_path: ${MOLECULE_PROJECT_DIRECTORY}/..
   inventory:
-    host_vars:
-      instance:
-        ansible_become: true
-        ansible_become_method: sudo
-        ansible_become_user: root
-        # If you need to specify a password, you can do it here or use Ansible Vault
-        # ansible_become_pass: root
+     host_vars:
+       instance:
+         # If you need to specify a password, you can do it here or use Ansible Vault
+         # ansible_become_pass: root
 verifier:
   name: ansible
