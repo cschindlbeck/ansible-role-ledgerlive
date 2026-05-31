@@ -18,6 +18,6 @@
         manager: "auto"
       become: false
   tasks:
-    - name: "Include ledgerlive"
+    - name: "Include cschindlbeck.ledgerlive"
       ansible.builtin.include_role:
-        name: "ledgerlive"
+        name: "cschindlbeck.ledgerlive"
