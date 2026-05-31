@@ -19,7 +19,7 @@ jobs:
           python-version: "3.13"
       - name: Install dependencies
         run: |
-          pip install -r requirements.txt
+          pip install -r requirements-dev.txt
           pip install molecule molecule-plugins[docker]
       - name: Run molecule test
         run: molecule test
