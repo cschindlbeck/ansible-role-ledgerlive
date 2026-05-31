@@ -1,0 +1,25 @@
+---
+- name: Prepare
+  hosts: instance
+  gather_facts: false
+  tasks:
+    - name: Ensure sudoers allows passwordless sudo
+      ansible.builtin.lineinfile:
+        path: /etc/sudoers
+        state: present
+        regexp: '^%wheel\s'
+        line: '%wheel  ALL=(ALL)       NOPASSWD: ALL'
+        validate: /usr/sbin/visudo -cf %s
+      register: sudoers_result
+      retries: 3
+      delay: 2
+      until: sudoers_result is succeeded
+
+    - name: Gather facts with retries
+      ansible.builtin.setup:
+        gather_subset: all
+        gather_timeout: 30
+      register: facts_result
+      retries: 3
+      delay: 5
+      until: facts_result is succeeded
