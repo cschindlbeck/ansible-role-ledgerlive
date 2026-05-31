@@ -1,0 +1,25 @@
+# file: .github/workflows/molecule.yml
+---
+name: molecule
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  molecule:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          submodules: true
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+          pip install molecule molecule-plugins[docker]
+      - name: Run molecule test
+        run: molecule test
