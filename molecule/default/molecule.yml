@@ -44,7 +44,6 @@ provisioner:
   inventory:
     host_vars:
       instance:
-      # If you need to specify a password, you can do it here or use Ansible Vault
-      # ansible_become_pass: root
+        ansible_become_password: ""
 verifier:
   name: ansible
